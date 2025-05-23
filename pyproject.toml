@@ -1,5 +1,7 @@
 [project]
-dependencies = []
+dependencies = [
+    "websockets>=15.0.1",
+]
 description = "Python ROS bridge client library"
 name = "roslibpy2"
 readme = "README.md"
