@@ -1,0 +1,7 @@
+[project]
+dependencies = []
+description = "Python ROS bridge client library"
+name = "roslibpy2"
+readme = "README.md"
+requires-python = ">=3.13"
+version = "0.1.0"
