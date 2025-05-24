@@ -8,6 +8,8 @@
         "davidanson.vscode-markdownlint",
         "yzhang.markdown-all-in-one",
         "bierner.markdown-preview-github-styles",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "foxundermoon.shell-format",
+        "mads-hartmann.bash-ide-vscode"
     ]
 }
