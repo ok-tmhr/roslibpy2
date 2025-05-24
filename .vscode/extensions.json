@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "charliermarsh.ruff",
+        "streetsidesoftware.code-spell-checker",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python",
+        "tamasfe.even-better-toml",
+        "davidanson.vscode-markdownlint",
+        "yzhang.markdown-all-in-one",
+        "bierner.markdown-preview-github-styles",
+        "esbenp.prettier-vscode",
+        "foxundermoon.shell-format",
+        "mads-hartmann.bash-ide-vscode"
+    ]
+}

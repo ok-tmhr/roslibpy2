@@ -1,0 +1,8 @@
+services:
+  rosbridge-server:
+    image: rosbridge:jazzy
+    network_mode: host
+    environment:
+      - HOST=localhost
+      - PORT=9090
+    command: ros2 launch rosbridge_server rosbridge_websocket_launch.xml

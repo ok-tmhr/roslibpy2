@@ -1,0 +1,15 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "byobu",
+        "DISTRO",
+        "rclpy",
+        "rosbridge",
+        "roslibpy",
+        "venv"
+    ],
+    "enabledLanguageIds": [
+        "python"
+    ]
+}
