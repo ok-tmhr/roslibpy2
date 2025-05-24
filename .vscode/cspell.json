@@ -6,7 +6,8 @@
         "DISTRO",
         "rclpy",
         "rosbridge",
-        "roslibpy"
+        "roslibpy",
+        "venv"
     ],
     "enabledLanguageIds": [
         "python"
