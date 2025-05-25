@@ -7,6 +7,7 @@
         "rclpy",
         "rosbridge",
         "roslibpy",
+        "unadvertise",
         "venv"
     ],
     "enabledLanguageIds": [

@@ -123,15 +123,16 @@ class Topic:
         self.name = name
         self.message_type = message_type
         self._topic_id: str | None = None
-        self._event = asyncio.Event()
+        self._event: asyncio.Event | None = None
 
     async def subscribe(self, callback: Callable[..., None]):
         op = self.subscribe.__name__
         self._topic_id = ".".join(
             (self.subscribe.__name__, self.name, str(self.ros.count))
         )
+        self._event = asyncio.Event()
 
-        async with self.ros as websocket:
+        async with self as websocket:
             await websocket.send(
                 create_message(
                     op, id=self._topic_id, type=self.message_type, topic=self.name
@@ -147,13 +148,23 @@ class Topic:
                 create_message("un" + op, id=self._topic_id, topic=self.name)
             )
 
-        self._topic_id = None
-        self._event = asyncio.Event()
-
     def unsubscribe(self):
-        self._event.set()
+        if self._event:
+            self._event.set()
+
+    async def __aenter__(self):
+        return await self.ros.__aenter__()
+
+    async def __aexit__(
+        self,
+        exec_type: type[BaseException],
+        exec_value: BaseException,
+        traceback: TracebackType,
+    ):
+        self.unsubscribe()
         self._topic_id = None
-        self._event = asyncio.Event()
+        self._event = None
+        await self.ros.__aexit__(exec_type, exec_value, traceback)
 
 
 async def main():
@@ -164,12 +175,10 @@ async def main():
     sub = Topic(ros, "/chatter", "std_msgs/msg/String")
 
     for _ in range(2):
-        try:
-            async with asyncio.timeout(5):
-                await sub.subscribe(callback)
-        except asyncio.TimeoutError:
-            await asyncio.sleep(3)
-            sub.unsubscribe()
+        task = asyncio.create_task(sub.subscribe(callback))
+        await asyncio.sleep(5)
+        sub.unsubscribe()
+        await task
 
 
 if __name__ == "__main__":
