@@ -94,30 +94,31 @@ class Subscription:
         self.topic = topic
         self.message_type = message_type
         self._uid = str(uuid.uuid4())
-        self._event: asyncio.Event | None = None
+        self._task: asyncio.Task | None = None
+        self._event = asyncio.Event()
 
     async def subscribe(self, callback):
+        self._event.clear()
+
         await self.ros.send(
             create_message(
                 "subscribe", id=self._uid, topic=self.topic, type=self.message_type
             )
         )
 
-        self._event = asyncio.Event()
+        async def _subscribe():
+            while not self._event.is_set():
+                data = await self.ros.receive()
+                match json.loads(data):
+                    case {"msg": x}:
+                        callback(x)
 
-        while not self._event.is_set():
-            data = await self.ros.receive()
-            match json.loads(data):
-                case {"msg": x}:
-                    callback(x)
-
-        self._event = None
+        self._task = asyncio.create_task(_subscribe())
 
     async def unsubscribe(self):
-        if self._event:
-            self._event.set()
-        while self._event:
-            await asyncio.sleep(0.1)
+        self._event.set()
+        if self._task:
+            await self._task
         await self.ros.send(
             create_message("unsubscribe", id=self._uid, topic=self.topic)
         )
@@ -138,17 +139,17 @@ async def main():
     def callback(msg):
         print(msg)
 
-    ros1, ros2 = Ros(), Ros()
-    async with ros1, ros2:
-        sub = Subscription(ros1, "/chatter", "std_msgs/msg/String")
+    ros, ros2 = Ros(), Ros()
+    async with ros:
+        sub = Subscription(ros, "/chatter", "std_msgs/msg/String")
         sub2 = Subscription(ros2, "/chatter2", "std_msgs/msg/String")
         async with asyncio.TaskGroup() as tg:
             t1 = tg.create_task(sub.subscribe(callback))
             t2 = tg.create_task(sub2.subscribe(callback))
             await asyncio.sleep(5)
+
             await sub.unsubscribe()
             await sub2.unsubscribe()
-            await t1, t2
 
 
 if __name__ == "__main__":
